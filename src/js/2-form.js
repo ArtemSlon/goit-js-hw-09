@@ -1,39 +1,35 @@
 const feedbackForm = document.querySelector(".feedback-form");
-const textarea = feedbackForm.querySelector("textarea");
 const storageKey = "feedback-form-state";
-
+let formData = {
+  email: "",
+  message: ""
+};
 feedbackForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(feedbackForm);
-    const values = {
-        email: formData.get("email"),
-        message: formData.get("message")
-    }
-     if (!values.email || !values.message) {
+  e.preventDefault();
+
+  if (!formData.email || !formData.message) {
     alert("Fill please all fields");
-    return; 
-    }
-    console.log(values);
-    localStorage.removeItem(storageKey);
-    feedbackForm.reset();
-})
-feedbackForm.addEventListener("input", ()=> {
-    const formData = new FormData(feedbackForm);
-    const values = {
-        email: formData.get("email"),
-        message: formData.get("message") 
-    }
-    saveInLS(storageKey, values);
-})
+    return;
+  }
+
+  console.log(formData);
+  localStorage.removeItem(storageKey);
+  feedbackForm.reset();
+  formData = { email: "", message: "" };
+});
+feedbackForm.addEventListener("input", (e) => {
+  formData[e.target.name] = e.target.value.trim(); 
+    saveInLS(storageKey, formData);
+});
 
 document.addEventListener("DOMContentLoaded", () => {
-    const data = loadFromLS(storageKey);
-    if (!data) return;
-    feedbackForm.elements.email.value = data.email || "";
-    feedbackForm.elements.message.value = data.message || "";
-    formData.email = data.email || "";
-    formData.message = data.message || "";
-})
+    const savedData = loadFromLS(storageKey);
+    if (savedData) {
+        formData = savedData;
+        feedbackForm.elements.email.value = formData.email || "";
+        feedbackForm.elements.message.value = formData.message || "";
+    }
+});
 
 function saveInLS(key, value) {
     const zip = JSON.stringify(value);
